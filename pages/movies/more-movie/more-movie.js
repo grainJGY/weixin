@@ -8,6 +8,8 @@ Page({
     requestUrl: "",
     totalCount: 0,
     isEmpty: true,
+    hiddenLoading:false,
+    disabledRemind:false
   },
   onLoad: function (options) {
     var category = options.category;
@@ -50,6 +52,20 @@ Page({
   },
   processDoubanData: function (moviesDouban) {
     var movies = [];
+    //没有更多啦
+    if(moviesDouban.subjects.length<=0){
+      var _this = this;
+      if(!_this.data.disabledRemind){
+        _this.setData({
+          disabledRemind: true
+        });
+        setTimeout(function(){
+          _this.setData({
+            disabledRemind: false
+          });
+        }, 2000);
+      }
+    }
     for (var idx in moviesDouban.subjects) {
       var subject = moviesDouban.subjects[idx];
       var title = subject.title;
@@ -79,10 +95,12 @@ Page({
     this.setData({
       movies: totalMovies
     });
-
     this.data.totalCount += 20;
     wx.hideNavigationBarLoading();
     wx.stopPullDownRefresh()
+    this.setData({
+      hiddenLoading:true
+    })
   },
 
   onReady: function (event) {
